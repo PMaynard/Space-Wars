@@ -1,4 +1,5 @@
-Space wars
+Space Wars
 ==========
 
 HTML5 Canvas Test
+
