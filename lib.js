@@ -25,7 +25,6 @@ var BRICKWIDTH;
 var BRICKHEIGHT;
 var PADDING;
 
-var sun = new Image();
 var debug = false;
 var ctx;
 
@@ -34,7 +33,6 @@ function init() {
   ctx = $('#canvas')[0].getContext("2d");
   WIDTH = $("#canvas").width();
   HEIGHT = $("#canvas").height();
-  sun.src = 'https://mdn.mozillademos.org/files/1456/Canvas_sun.png';
   return setInterval(draw, 10);
 }
 
@@ -115,8 +113,24 @@ rect.prototype.getDraw = function(){
 // Helper functions
 function clear() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  background();
 }
 
+// Draw the faint background grid.
+function background() {
+  var size = 15;
+  ctx.fillStyle = 'hsla(0, 0%, 50%, 0.05)';
+
+  var i = Math.round( HEIGHT / size );
+  while( i-- ) {
+    ctx.fillRect( 0, i * size + 25, WIDTH, 1 );
+  }
+
+  i = Math.round( WIDTH / size );
+  while( i-- ) {
+    ctx.fillRect( i * size, 0, 1, HEIGHT );
+  }
+}
 
 // User Controls
 function onKeyDown(evt) {
