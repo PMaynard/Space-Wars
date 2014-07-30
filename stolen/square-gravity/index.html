@@ -1,0 +1,147 @@
+<!doctype html>
+	<html>
+		<head>
+		<title>Square Gravity</title>
+
+		<style>
+			/*basic reset*/
+			* {margin: 0; padding: 0;}
+			/*adding a black bg to the body to make things clearer*/
+			body {background: black;}
+			canvas {display: block;}
+		</style>
+	</head>
+<body>
+	<canvas id="c"></canvas>
+
+	<script type="text/javascript">
+		window.onload = function()
+		{
+			// lets get the HTML canvas element so we draw on it
+			var canvas = document.getElementById("c");
+			var ctx = canvas.getContext("2d")
+			
+			var W = window.innerWidth,	// get the width of our window
+				H = window.innerHeight;// get the height	
+					
+			// set our canvas to our size of Width and height
+			canvas.width = W;
+			canvas.height = H;
+			
+			/*=========== Box class ===========*/
+			function Box(_x,_y)
+			{
+				// the X/Y position 
+				this.x = _x;
+				this.y = _y;
+				
+				// lets give it velocity X and Y
+				this.xVel = 10 + Math.random()*20;
+				this.yVel = 1;
+				
+				// the box width and height
+				this.width = 20
+				this.height = 20;
+				
+				// random colors for our box
+				this.r = Math.round(Math.random()*255);
+				this.g = Math.round(Math.random()*255);
+				this.b = Math.round(Math.random()*255);
+				
+				this.rgba = "rgba("+this.r+","+this.g+","+this.b+",1)";
+				
+				// lets make draw method for our box
+				this.draw = function()
+				{
+					ctx.strokeStyle = this.rgba;
+					ctx.strokeRect(this.x,this.y,this.width,this.height);
+					
+					this.update();
+				}
+				
+				// function that handle our logics for our box
+				this.update = function()
+				{
+					// lets check if the ball get out of our screen and when
+					// it does that, make it bounce
+					// check the left window border
+					if(this.x < 0) {
+						this.x = 0;			// set its position to 0
+						this.xVel *= -1; // make it bounce
+					}
+					
+					// check the right border
+					if(this.x > W - this.width)
+					{
+							this.x = W - this.width;			// set its position to 0
+							this.xVel *= -1; // make it bounce
+					}
+					
+					// check the top border
+					if(this.y < 0) {
+						this.y = 0;			// this is what happen when u copy/paste
+						this.yVel *= -1; // make it bounce
+					}
+					
+					// the reason why we did this if function so the boxes dont
+					// try to add y by its velocity when its reach bottom
+					// cause it will cause it to spazz
+					// now we add gravity
+					if(this.y < H - this.height) 
+						this.yVel += .25;
+					
+					// check the bottom border
+					if(this.y > H - this.height)
+					{
+							// when it bounce off the bottom decrease the ball speed
+							this.xVel *= .5
+							this.yVel *= .5
+							
+							this.y = H - this.height;			// set its position to 0
+							this.yVel *= -1; // make it bounce
+					}
+
+					// move add speed to our x/y 
+					this.x += this.xVel;
+					this.y += this.yVel;
+				}
+			}
+					
+			// lets make array of boxes
+			var boxes = [];
+			
+			// Function to draw stuff on our screen :)
+			function draw()
+			{
+				// Background
+				ctx.globalCompositeOperation = "source-over";
+				ctx.fillStyle = "rgba(0,0,0,0.5)"
+				ctx.fillRect(0,0,W,H);
+				
+				ctx.globalCompositeOperation = "lighter"
+				
+				// loop through the boxes and draw them
+				for(i=0; i < boxes.length; i++)
+					boxes[i].draw();
+				
+				update();
+			}
+			
+			// Function for our logic
+			function update()
+			{
+				// loop through the boxes and draw them
+				for(i=0; i < boxes.length; i++)
+					boxes[i].update();
+			}
+			
+			// add box every minute we specify
+			setInterval(function(){
+				boxes.push( new Box(0,0))
+			},1000);
+			
+			// set interval so we can draw then update our drawing
+			// every 30 milisecond
+			setInterval(draw,30);
+		}
+	</script>
