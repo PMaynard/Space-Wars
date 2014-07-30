@@ -1,0 +1,110 @@
+<!doctype html>
+	<html>
+		<head>
+		<title>Ship Test</title>
+
+		<style>
+			/* basic styles for black background and crosshair cursor */
+			body {
+				background: #000;
+				margin: 0;
+			}
+
+			canvas {
+				cursor: crosshair;
+				display: block;
+			}
+		</style>
+	</head>
+<body>
+	<canvas id="canvas">
+		Thanks - http://stackoverflow.com/questions/8935930/create-equilateral-triangle-in-the-middle-of-canvas/17766439#17766439
+	</canvas>
+
+	<script type="text/javascript">
+		window.onload = function()
+		{
+			var canvas  = document.getElementById("canvas"),
+				ctx 	= canvas.getContext("2d"),
+				WIDTH	= window.innerWidth,
+				HEIGHT  = window.innerHeight,
+				mouse_x,
+				mouse_y,
+				ship_height = 25 * (Math.sqrt(3)/2);
+
+			canvas.width = WIDTH;
+			canvas.height = HEIGHT;
+
+			// Create a ship.
+			ship = new Ship(WIDTH/2, HEIGHT/2);
+
+			/* Ship Class */
+			function Ship(_x, _y)
+			{
+				this.x = _x;
+				this.y = _y;
+				this.rotation = 0;
+
+				this.draw = function()
+				{
+					ctx.save();
+					ctx.translate(this.x, this.y);
+					ctx.rotate(this.rotation);
+
+					ctx.beginPath();
+					ctx.strokeStyle = "rgba(255,255,255,1)";
+					ctx.moveTo(this.x, this.y);
+					ctx.lineTo( (this.x + (ship_height/2)), (this.y + ship_height) );
+					ctx.lineTo( (this.x - (ship_height/2)), (this.y + ship_height) );
+					ctx.lineTo(this.x, this.y);
+
+					ctx.closePath();
+					ctx.stroke();
+
+					ctx.restore();
+				}
+
+				this.update = function()
+				{
+					var dx = mouse_x - this.x,
+						dy = mouse_y - this.y;
+
+					this.rotation = Math.atan2(dy, dx); 
+				}
+			}
+
+			function draw()
+			{
+				// Clear the screen 
+				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+				ctx.fillRect( 0, 0, WIDTH, HEIGHT );
+
+				update();
+				ship.draw();
+			}
+
+			function update() 
+			{
+				ship.update();
+			}
+
+			// Handle mouse
+			canvas.addEventListener( 'mousemove', function( e ) {
+				mouse_x = e.pageX - canvas.offsetLeft;
+				mouse_y = e.pageY - canvas.offsetTop;
+			});
+
+			// toggle mousedown state and prevent canvas from being selected
+			canvas.addEventListener( 'mousedown', function( e ) {
+				e.preventDefault();
+				mouse_down = true;
+			});
+
+			canvas.addEventListener( 'mouseup', function( e ) {
+				e.preventDefault();
+				mouse_down = false;
+			});
+
+			setInterval(draw,0);
+		}
+	</script>

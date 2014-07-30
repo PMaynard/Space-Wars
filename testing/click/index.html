@@ -1,0 +1,114 @@
+<!doctype html>
+	<html>
+		<head>
+		<title>Clicky</title>
+
+		<style>
+			/* basic styles for black background and crosshair cursor */
+			body {
+				background: #000;
+				margin: 0;
+			}
+
+			canvas {
+				cursor: crosshair;
+				display: block;
+			}
+		</style>
+	</head>
+<body>
+	<canvas id="canvas"></canvas>
+
+	<script type="text/javascript">
+		window.onload = function()
+		{
+			var canvas  = document.getElementById("canvas"),
+				ctx 	= canvas.getContext("2d"),
+				WIDTH	= window.innerWidth,
+				HEIGHT  = window.innerHeight,
+				mouse_down	= false,
+				mouse_x,
+				mouse_y,
+				blips 	= [],
+				max_blips = 100;
+
+			canvas.width = WIDTH;
+			canvas.height = HEIGHT;
+
+			/* Blip Class */
+			function Blip(_x, _y)
+			{
+				this.x = _x;
+				this.y = _y;
+
+				this.r = Math.round(Math.random()*255);
+				this.g = Math.round(Math.random()*255);
+				this.b = Math.round(Math.random()*255);
+
+				this.rgba = "rgba("+this.r+","+this.g+","+this.b+",1)";
+
+				this.radius = 1;
+
+				this.draw = function()
+				{
+					ctx.beginPath();
+					ctx.strokeStyle = this.rgba;
+					ctx.arc( this.x, this.y, this.radius, 0, Math.PI * 2 );
+					ctx.stroke();
+
+				}
+
+				this.update = function()
+				{
+					if( this.radius < 8 ) {
+						this.radius += 0.3;
+					} else {
+						this.radius = 1;
+					}
+				}
+			}
+
+			function draw()
+			{
+				// Clear the screen 
+				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+				ctx.fillRect( 0, 0, WIDTH, HEIGHT );
+
+				// If mouse has clicked add a new blip at x and y.
+				if(mouse_down){
+					if(blips.length > max_blips)
+						blips.shift();
+					blips.push( new Blip(mouse_x, mouse_y) )
+				}
+
+				for(i = 0; i < blips.length; i++)
+					blips[i].draw();
+
+				update();
+			}
+
+			function update() 
+			{
+				for(i = 0; i < blips.length; i++)
+					blips[i].update();
+			}
+
+			canvas.addEventListener( 'mousemove', function( e ) {
+				mouse_x = e.pageX - canvas.offsetLeft;
+				mouse_y = e.pageY - canvas.offsetTop;
+			});
+
+			// toggle mousedown state and prevent canvas from being selected
+			canvas.addEventListener( 'mousedown', function( e ) {
+				e.preventDefault();
+				mouse_down = true;
+			});
+
+			canvas.addEventListener( 'mouseup', function( e ) {
+				e.preventDefault();
+				mouse_down = false;
+			});
+
+			setInterval(draw,30);
+		}
+	</script>

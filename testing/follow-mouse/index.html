@@ -1,0 +1,116 @@
+<!doctype html>
+	<html>
+		<head>
+		<title>Follow Mouse</title>
+
+		<style>
+			/* basic styles for black background and crosshair cursor */
+			body {
+				background: #000;
+				margin: 0;
+			}
+
+			canvas {
+				cursor: crosshair;
+				display: block;
+			}
+		</style>
+	</head>
+<body>
+	<canvas id="canvas"></canvas>
+
+	<script type="text/javascript">
+		window.onload = function()
+		{
+			var canvas  = document.getElementById("canvas"),
+				ctx 	= canvas.getContext("2d"),
+				WIDTH	= window.innerWidth,
+				HEIGHT  = window.innerHeight,
+				mouse_down	= false,
+				mouse_x,
+				mouse_y;
+
+			canvas.width = WIDTH;
+			canvas.height = HEIGHT;
+
+			arrow = new Arrow(WIDTH/2, HEIGHT/2);
+
+			/* Blip Class */
+			function Arrow(_x, _y)
+			{
+				this.x = _x;
+				this.y = _y;
+				this.color = "#ffff00";
+				this.rotation = 0;
+
+				this.draw = function()
+				{
+					ctx.save();
+					ctx.translate(this.x, this.y);
+					ctx.rotate(this.rotation);
+
+					ctx.lineWidth = 2;
+					ctx.fillStyle = this.color;
+					ctx.beginPath();
+					ctx.moveTo(-50, -25);
+					ctx.lineTo(0, -25);
+					ctx.lineTo(0, -50);
+					ctx.lineTo(50, 0);
+					ctx.lineTo(0, 50);
+					ctx.lineTo(0, 25);
+					ctx.lineTo(-50, 25);
+					ctx.lineTo(-50, -25);
+					ctx.closePath();
+					ctx.fill();
+					ctx.stroke();
+
+					ctx.restore();
+				}
+
+				this.update = function()
+				{
+					var dx = mouse_x - this.x,
+						dy = mouse_y - this.y;
+
+					this.rotation = Math.atan2(dy, dx); 
+				}
+
+			}
+
+			function draw()
+			{
+				// Clear the screen 
+				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+				ctx.fillRect( 0, 0, WIDTH, HEIGHT );
+
+				// Code to do stuff.				
+				arrow.draw();
+
+				update();
+			}
+
+			function update() 
+			{
+				arrow.update();
+			}
+
+			// Handle mouse
+			canvas.addEventListener( 'mousemove', function( e ) {
+				mouse_x = e.pageX - canvas.offsetLeft;
+				mouse_y = e.pageY - canvas.offsetTop;
+			});
+
+			// toggle mousedown state and prevent canvas from being selected
+			canvas.addEventListener( 'mousedown', function( e ) {
+				e.preventDefault();
+				mouse_down = true;
+			});
+
+			canvas.addEventListener( 'mouseup', function( e ) {
+				e.preventDefault();
+				mouse_down = false;
+			});
+
+			setInterval(draw,30);
+		}
+	</script>
