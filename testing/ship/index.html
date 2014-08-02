@@ -17,9 +17,7 @@
 		</style>
 	</head>
 <body>
-	<canvas id="canvas">
-		Thanks - http://stackoverflow.com/questions/8935930/create-equilateral-triangle-in-the-middle-of-canvas/17766439#17766439
-	</canvas>
+	<canvas id="canvas"></canvas>
 
 	<script type="text/javascript">
 		window.onload = function()
@@ -30,19 +28,25 @@
 				HEIGHT  = window.innerHeight,
 				mouse_x,
 				mouse_y,
-				ship_height = 25 * (Math.sqrt(3)/2);
+				ship_height = 25 * (Math.sqrt(3)/2),
+				up_down = false,
+				down_down = false,
+				left_down = false,
+				right_down = false;
 
 			canvas.width = WIDTH;
-			canvas.height = HEIGHT;
+			canvas.height = WIDTH;
 
 			// Create a ship.
-			ship = new Ship(WIDTH/2, HEIGHT/2);
+			ship = new Ship(WIDTH/2, WIDTH/2);
 
 			/* Ship Class */
 			function Ship(_x, _y)
 			{
 				this.x = _x;
 				this.y = _y;
+				this.xv = 10;
+				this.yv = 10;
 				this.rotation = 0;
 
 				this.draw = function()
@@ -50,17 +54,14 @@
 					ctx.save();
 					ctx.translate(this.x, this.y);
 					ctx.rotate(this.rotation);
-
+					ctx.strokeStyle = '#FFF';
 					ctx.beginPath();
-					ctx.strokeStyle = "rgba(255,255,255,1)";
-					ctx.moveTo(this.x, this.y);
-					ctx.lineTo( (this.x + (ship_height/2)), (this.y + ship_height) );
-					ctx.lineTo( (this.x - (ship_height/2)), (this.y + ship_height) );
-					ctx.lineTo(this.x, this.y);
-
-					ctx.closePath();
+					ctx.moveTo(25, 0);
+					ctx.lineTo(-25, -25);
+					ctx.lineTo(-25, 25);
+					ctx.lineTo(25, 0);
 					ctx.stroke();
-
+					ctx.closePath();
 					ctx.restore();
 				}
 
@@ -70,13 +71,25 @@
 						dy = mouse_y - this.y;
 
 					this.rotation = Math.atan2(dy, dx); 
+
+					if(up_down)
+						this.y -= this.yv;
+
+					if(down_down)
+						this.y += this.yv;
+
+					if(left_down)
+						this.x -= this.xv;
+
+					if(right_down)
+						this.x += this.xv;
 				}
 			}
 
 			function draw()
 			{
 				// Clear the screen 
-				ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+				ctx.fillStyle = 'black';
 				ctx.fillRect( 0, 0, WIDTH, HEIGHT );
 
 				update();
@@ -105,6 +118,35 @@
 				mouse_down = false;
 			});
 
-			setInterval(draw,0);
+			window.addEventListener( 'keydown', function( e ) {
+				if(e.keyCode == '87' || e.keyCode == '38')
+					up_down = true;
+
+				if(e.keyCode == '83' || e.keyCode == '40')
+					down_down = true;
+
+				if(e.keyCode == '65' || e.keyCode == '37')
+					left_down = true;
+
+				if(e.keyCode == '39' || e.keyCode == '68')
+					right_down = true;
+			});
+
+			window.addEventListener( 'keyup', function( e ) {
+				if(e.keyCode == '87' || e.keyCode == '38')
+					up_down = false;
+
+				if(e.keyCode == '83' || e.keyCode == '40')
+					down_down = false;
+
+				if(e.keyCode == '65' || e.keyCode == '37')
+					left_down = false;
+
+				if(e.keyCode == '39' || e.keyCode == '68')
+					right_down = false;
+			});
+			// =================== User Input =================== //
+
+			setInterval(draw,30);
 		}
 	</script>
