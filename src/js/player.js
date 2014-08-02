@@ -43,16 +43,17 @@ SW.Player.prototype.update = function()
 
 	if(SW.mouse_down){
 		if(!this.laser) 
-			this.laser = new SW.Laser(this.x, this.y, SW.mouse_x, SW.mouse_y, SW.laser_range);
-		if(this.laser.update()){
-			this.laser.draw();
-		}else{
-			this.laser = new SW.Laser(this.x, this.y, SW.mouse_x, SW.mouse_y, SW.laser_range);
-		}
+			this.laser = new SW.Laser(this.x, this.y, SW.mouse_x, SW.mouse_y, SW.laser_range)
 
 		// Draw dots on the asteroid.
 		if(SW.pointInArch(SW.mouse_x, SW.mouse_y, SW.asteroid.x, SW.asteroid.y, SW.asteroid.radius)){
 			SW.dots.push({"x":SW.mouse_x, "y":SW.mouse_y});
 		}
+	}
+
+	if(this.laser.update()){
+		this.laser.draw();
+	}else{
+		this.laser = null;
 	}
 };
