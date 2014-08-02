@@ -12,7 +12,8 @@ var canvas  = document.getElementById("canvas"),
 	background_size_small = 10,
 	background_size_big = 100,
 	blips 	= [],
-	max_blips = 400,
+	max_blips = 5,
+	laser_range = 200,
 	mouse_down	= false,
 	mouse_x,
 	mouse_y,
@@ -22,50 +23,78 @@ var canvas  = document.getElementById("canvas"),
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
-player = new Player(WIDTH/2, HEIGHT/2);
+player = new Player(150, HEIGHT/2);
+asteroid = new Asteroid(rand(WIDTH/2, WIDTH), rand(HEIGHT/2, HEIGHT), rand(30,200))
 
 
 function main_loop()
 {
 	clear();
-	ctx.font      = "normal 36px Verdana";
-	ctx.fillStyle = "green";
-	ctx.fillText(numb_hit, 50, 50);
-	ctx.fillStyle = "red";
-	ctx.fillText(numb_missed, 150, 50);
 
 	player.draw();
-	
-	if(blips.length < max_blips )
-			blips.push( new Blip(WIDTH+10, rand(0, HEIGHT) ) );
-	
-	for(i = 0; i < blips.length; i++){
-		blips[i].draw();
-		if(blips[i].x < 0){
-			blips.shift();
-			numb_missed++;
-		}
-	}
+	asteroid.draw();
+
 	update();
 }
 
 function update() 
 {
 	player.update();
-	for(i = 0; i < blips.length; i++){
-		// Touch das player?
-		if(archInArch(0, player.x, player.y, player.radius, blips[i].x, blips[i].y, blips[i].radius )){
-			blips.splice(i, 1);
-			numb_hit++;
-			max_blips--;
-		}
-
-		blips[i].update();
-	}
 }
 
 setInterval(main_loop,30);
 // =================== Main Loop =================== //
+
+// =================== Laser Class =================== //
+function Laser(_start_x, _start_y, _end_x, _end_y, max_length) 
+{
+
+	// Fire laser when laser range colides with the asteroid w
+	
+	this.start_x = _start_x;
+	this.start_y = _start_y;
+	this.end_x = _end_x;
+	this.end_y = _end_y;
+	this.max_length = max_length
+
+	this.update = function() 
+	{
+		// This should draw the laser, with each update it should get closer to the target. - See fireworks.
+		// Then stop when it hits something.
+		if(calculateDistance(this.start_x, this.start_y, this.end_x, this.end_y) <= max_length) {		
+			ctx.beginPath();
+			ctx.strokeStyle = "gold";
+			ctx.moveTo(this.start_x, this.start_y);
+			ctx.lineTo(this.end_x, this.end_y);
+			ctx.stroke();
+		}
+	}
+
+}
+// =================== Laser Class =================== //
+
+// =================== Asteroid Class =================== //
+function Asteroid(_x, _y, r)
+{
+	this.x = _x;
+	this.y = _y;
+	this.radius = r;
+	this.toughness = rand(5,20); // How long it takes to get ore 
+	this.ore = rand(0,r); // Numer of ore contains
+
+	this.draw = function()
+	{
+		ctx.beginPath();
+		ctx.fillStyle = "gray";
+		ctx.arc( this.x, this.y, this.radius, 0, Math.PI * 2 );
+		ctx.fill();
+	}
+
+	this.update = function()
+	{
+	}
+}
+// =================== Asteroid Class =================== //
 
 // =================== Player Class =================== //
 function Player(_x, _y)
@@ -74,19 +103,36 @@ function Player(_x, _y)
 	this.y = _y;
 	this.xv = 10;
 	this.yv = 10;
-	this.radius = 25; 
+	this.rotation = 0;
 
 	this.draw = function()
 	{
+		ctx.save();
+		ctx.translate(this.x, this.y);
+		ctx.rotate(this.rotation);
+		ctx.strokeStyle = '#FFF';
 		ctx.beginPath();
-		ctx.strokeStyle = "white";
-		ctx.arc( this.x, this.y, this.radius, 0, Math.PI * 2 );
+		ctx.moveTo(25, 0);
+		ctx.lineTo(-25, -25);
+		ctx.lineTo(-25, 25);
+		ctx.lineTo(25, 0);
 		ctx.stroke();
+		ctx.closePath();
+		ctx.restore();
+
+		ctx.beginPath();
+		ctx.strokeStyle = 'rgba(0, 0, 100, 0.5)';
+		ctx.arc( this.x, this.y, laser_range, 0, Math.PI * 2 );
+		ctx.stroke();
+		ctx.closePath();
 
 	}
 
 	this.update = function()
 	{
+		// Point to the mouse x y
+		this.rotation = Math.atan2(mouse_y - this.y, mouse_x - this.x);
+
 		if(up_down)
 			this.y -= this.yv;
 
@@ -94,10 +140,15 @@ function Player(_x, _y)
 			this.y += this.yv;
 
 		if(left_down)
-			this.x -= this.yv;
+			this.x -= this.xv;
 
 		if(right_down)
-			this.x += this.yv;
+			this.x += this.xv;
+
+		if(mouse_down){
+			laser = new Laser(player.x, player.y, mouse_x, mouse_y, laser_range);
+			laser.update();
+		}
 	}
 }
 // =================== Player Class =================== //
@@ -145,6 +196,12 @@ function Blip(_x, _y)
 function rand(min, max)
 {
 	return Math.random() * ( max - min ) + min;
+}
+
+function calculateDistance( p1x, p1y, p2x, p2y ) {
+	var xDistance = p1x - p2x,
+		yDistance = p1y - p2y;
+	return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
 }
 
 function arcInRect( ax, ay, ar, rx, ry, rw, rh ) {
