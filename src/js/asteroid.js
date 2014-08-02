@@ -14,3 +14,11 @@ SW.Asteroid.prototype.draw = function()
 	SW.ctx.arc( this.x, this.y, this.radius, 0, Math.PI * 2 );
 	SW.ctx.fill();
 };
+
+SW.Asteroid.prototype.update = function()
+{
+	if(this.ore <= 0) {
+		this.x = -10000;
+		this.y = -10000;
+	}
+}

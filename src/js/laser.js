@@ -15,6 +15,12 @@ SW.Laser = function(_start_x, _start_y, _end_x, _end_y, max_length)
 
 SW.Laser.prototype.update = function() 
 {
+
+	if(SW.pointInArch(this.x, this.y, SW.asteroid.x, SW.asteroid.y, SW.asteroid.radius)){
+		SW.asteroid.ore--;
+		SW.player.hull++;
+		console.log("Asteroid Ore: ", SW.asteroid.ore, "Hull: ", SW.player.hull)
+	}
 	this.angle = Math.atan2(this.end_y - this.start_y, this.end_x - this.start_x );
 	this.speed *= this.acceleration;
 	var vx = Math.cos( this.angle ) * this.speed,

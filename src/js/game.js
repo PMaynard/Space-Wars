@@ -42,6 +42,7 @@ SW.main_loop = function()
 
 	// Update
 	SW.player.update();
+	SW.asteroid.update();
 }
 
 // Entry Point.

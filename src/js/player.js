@@ -6,6 +6,7 @@ SW.Player = function(_x, _y)
 	this.yv = 10;
 	this.rotation = 0;
 	this.laser = null;
+	this.hull = 0;
 };
 
 SW.Player.prototype.draw = function()
