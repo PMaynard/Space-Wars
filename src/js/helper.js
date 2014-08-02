@@ -41,9 +41,11 @@ SW.rand = function(min, max) {
 }
 
 SW.calculateDistance = function( p1x, p1y, p2x, p2y ) {
-	var xDistance = p1x - p2x,
-		yDistance = p1y - p2y;
-	return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
+	return Math.sqrt( Math.pow( p1x - p2x, 2 ) + Math.pow( p1y - p2y, 2 ) );
+}
+
+SW.pointInArch = function(point_x, point_y, arch_x, arch_y, arch_radius) {
+	return(Math.sqrt(Math.pow(arch_x - point_x, 2) + Math.pow(arch_y - point_y, 2)) <= arch_radius)
 }
 
 SW.arcInRect = function( ax, ay, ar, rx, ry, rw, rh ) {
@@ -68,7 +70,7 @@ SW.archInArch = function(touch_distance, ax, ay, ar, bx, by, br) {
 		return true//"Overlapping" 
 	} 
 	else {
-	 return false
+	 	return false
 	}
 
 }

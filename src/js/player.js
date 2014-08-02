@@ -5,6 +5,7 @@ SW.Player = function(_x, _y)
 	this.xv = 10;
 	this.yv = 10;
 	this.rotation = 0;
+	this.laser = null;
 };
 
 SW.Player.prototype.draw = function()
@@ -21,13 +22,6 @@ SW.Player.prototype.draw = function()
 	SW.ctx.stroke();
 	SW.ctx.closePath();
 	SW.ctx.restore();
-
-	SW.ctx.beginPath();
-	SW.ctx.strokeStyle = 'rgba(0, 0, 100, 0.5)';
-	SW.ctx.arc( this.x, this.y, SW.laser_range, 0, Math.PI * 2 );
-	SW.ctx.stroke();
-	SW.ctx.closePath();
-
 };
 
 SW.Player.prototype.update = function()
@@ -48,7 +42,17 @@ SW.Player.prototype.update = function()
 		this.x += this.xv;
 
 	if(SW.mouse_down){
-		laser = new SW.Laser(SW.player.x, SW.player.y, SW.mouse_x, SW.mouse_y, SW.laser_range);
-		laser.update();
+		if(!this.laser) 
+			this.laser = new SW.Laser(this.x, this.y, SW.mouse_x, SW.mouse_y, SW.laser_range);
+		if(this.laser.update()){
+			this.laser.draw();
+		}else{
+			this.laser = new SW.Laser(this.x, this.y, SW.mouse_x, SW.mouse_y, SW.laser_range);
+		}
+
+		// Draw dots on the asteroid.
+		if(SW.pointInArch(SW.mouse_x, SW.mouse_y, SW.asteroid.x, SW.asteroid.y, SW.asteroid.radius)){
+			SW.dots.push({"x":SW.mouse_x, "y":SW.mouse_y});
+		}
 	}
 };
